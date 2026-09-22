@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-papel: #ffffff;
+  --color-cal: #f4f4f1;
+  --color-grafite: #1c1c1a;
+  --color-tinta: #40403a;
+  --color-pedra: #6e6e68;
+  --color-nevoa: #9a9a92;
+  --color-regua: #e3e3de;
+  --color-ambar: #e8a33d;
+  --color-ambarfraco: #fbf1df;
+  --color-ambartexto: #7a5a12;
+  --color-selo: #1f7a5a;
+  --color-selofraco: #e8f3ee;
+  --color-barro: #a8452f;
+
+  --font-sans: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: #e8e8e3;
+    color: var(--color-grafite);
+    font-family: var(--font-sans);
+    overflow: hidden;
+  }
+  button {
+    cursor: pointer;
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ambar);
+    outline-offset: 2px;
+  }
+}
+
+/* o disco da playlist, como no TikTok */
+@keyframes gira {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.disco-gira {
+  animation: gira 8s linear infinite;
+}
+
+/* coração do toque duplo */
+@keyframes bate {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -56%) scale(1.05);
+  }
+}
+.coracao-bate {
+  animation: bate 0.75s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disco-gira,
+  .coracao-bate {
+    animation: none;
+  }
+}

@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gênesis — protótipo do aplicativo</title>
+<meta name="description" content="Protótipo navegável do aplicativo Gênesis: feed vertical, loja, profissionais verificados perto de você e trilha de 12 semanas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><path d='M 60 12 A 48 48 0 1 1 26.1 26.1' fill='none' stroke='%231C1C1A' stroke-width='13' stroke-linecap='round'/><circle cx='60' cy='12' r='10' fill='%23E8A33D'/></svg>">
+<style>
+:root{
+  --papel:#FFFFFF; --cal:#F4F4F1; --grafite:#1C1C1A; --pedra:#6E6E68; --tinta:#40403A;
+  --ambar:#E8A33D; --ambar-fraco:#FBF1DF; --ambar-texto:#7A5A12;
+  --selo:#1F7A5A; --selo-fraco:#E8F3EE; --regua:#E3E3DE; --barro:#A8452F;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Instrument Serif",Georgia,serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;font-family:var(--sans);color:var(--grafite);
+  background:#E8E8E3;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow:hidden;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0}
+
+/* ---------- moldura ---------- */
+.frame{
+  width:390px;height:844px;background:var(--papel);border-radius:42px;overflow:hidden;
+  box-shadow:0 2px 6px rgba(20,20,18,.08),0 30px 70px rgba(20,20,18,.22);
+  display:flex;flex-direction:column;position:relative;
+}
+@media (max-width:460px),(max-height:900px){
+  body{padding:0;align-items:stretch;justify-content:stretch}
+  .frame{width:100%;height:100dvh;border-radius:0;box-shadow:none}
+}
+.stage{flex:1;position:relative;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--papel)}
+.screen.on{display:flex}
+.rolagem{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---------- barra inferior ---------- */
+.tabbar{
+  flex-shrink:0;height:64px;border-top:1px solid var(--regua);background:var(--papel);
+  display:flex;align-items:center;justify-content:space-around;padding:0 6px;
+}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;width:62px;min-height:52px;justify-content:center;position:relative}
+.tabbar span{font-size:10px;color:#9A9A92;font-weight:500}
+.tabbar svg{stroke:#9A9A92}
+.tabbar button.on span{color:var(--grafite);font-weight:600}
+.tabbar button.on svg{stroke:var(--grafite)}
+.mais{width:46px;height:46px;border-radius:50%;background:var(--grafite);display:flex;align-items:center;justify-content:center}
+.badge{
+  position:absolute;top:2px;right:10px;background:var(--barro);color:#fff;font-size:9px;font-weight:700;
+  min-width:16px;height:16px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;
+}
+
+/* ---------- feed imersivo ---------- */
+.feed{height:100%;overflow-y:auto;scroll-snap-type:y mandatory;background:#000}
+.post{height:100%;scroll-snap-align:start;position:relative;overflow:hidden;display:flex}
+.post img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.veu{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 26%,rgba(0,0,0,0) 44%,rgba(0,0,0,.82) 100%)}
+.play{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:62px;height:62px;border-radius:50%;background:rgba(255,255,255,.18);
+  backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;
+}
+.coracao-voo{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.4);opacity:0;pointer-events:none;
+}
+.coracao-voo.bate{animation:bate .75s ease-out}
+@keyframes bate{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}
+  60%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-56%) scale(1.05)}
+}
+
+/* topo do feed */
+.topo{
+  position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:14px;
+  padding:16px 14px 10px;
+}
+.abas{display:flex;gap:16px;align-items:center;flex:1;justify-content:center}
+.aba{font-size:15px;color:rgba(255,255,255,.62);font-weight:500;position:relative;padding-bottom:6px;min-height:34px}
+.aba.on{color:#fff;font-weight:700}
+.aba.on::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:22px;height:2.5px;border-radius:2px;background:#fff}
+.ponto{position:absolute;top:-1px;right:-8px;width:6px;height:6px;border-radius:50%;background:#E23B2E}
+.icone-topo{width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+
+/* rail direito */
+.rail{
+  position:absolute;right:10px;bottom:150px;z-index:6;display:flex;flex-direction:column;align-items:center;gap:18px;
+  filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));
+}
+.rail .acao{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:48px;min-height:48px;justify-content:center}
+.rail .num{font-size:11.5px;color:#fff;font-weight:600}
+.autor{position:relative;margin-bottom:6px}
+.autor img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid #fff}
+.seguir{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:-9px;width:20px;height:20px;border-radius:50%;
+  background:var(--ambar);display:flex;align-items:center;justify-content:center;border:1.5px solid #fff;
+}
+.disco{width:40px;height:40px;border-radius:50%;overflow:hidden;border:5px solid rgba(30,30,28,.9);animation:gira 8s linear infinite}
+.disco img{width:100%;height:100%;object-fit:cover}
+@keyframes gira{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.disco{animation:none}}
+
+/* legenda */
+.legenda{position:absolute;left:0;right:64px;bottom:0;z-index:5;padding:0 14px 16px;display:flex;flex-direction:column;gap:9px}
+.ancora{
+  display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.93);border-radius:10px;padding:7px;
+}
+.ancora img{width:44px;height:44px;border-radius:7px;object-fit:cover;flex-shrink:0}
+.ancora .nome{flex:1;font-size:12.5px;font-weight:600;color:var(--grafite);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ancora button{background:var(--ambar);color:var(--grafite);font-size:12px;font-weight:700;border-radius:7px;padding:9px 14px;min-height:40px}
+.perfil-linha{display:flex;align-items:center;gap:5px;color:#fff;font-size:15px;font-weight:700}
+.desc{color:rgba(255,255,255,.92);font-size:13.5px;line-height:1.45;margin:0}
+.desc b{font-weight:400;color:rgba(255,255,255,.65)}
+.musica{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.88);font-size:12px}
+.selo-post{
+  display:inline-flex;align-items:center;gap:5px;align-self:flex-start;background:rgba(31,122,90,.94);
+  color:#fff;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 9px;border-radius:20px;
+}
+.progresso-post{height:5px;border-radius:3px;background:rgba(255,255,255,.28);overflow:hidden}
+.progresso-post i{display:block;height:5px;background:var(--ambar)}
+
+/* ---------- seguindo (claro) ---------- */
+.cabeca{
+  flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid #F0F0EC;background:var(--papel);
+}
+.cabeca h1{margin:0;font-size:18px;font-weight:600;flex:1}
+.stories{display:flex;gap:14px;overflow-x:auto;padding:14px 16px;border-bottom:1px solid #F0F0EC}
+.story{display:flex;flex-direction:column;align-items:center;gap:6px;width:70px;flex-shrink:0}
+.anel{width:64px;height:64px;border-radius:50%;padding:2.5px;background:var(--regua)}
+.anel.novo{background:linear-gradient(140deg,var(--ambar),#C97B1F)}
+.anel img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid var(--papel)}
+.story span{font-size:11px;color:var(--tinta);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cartao{border:1px solid var(--regua);border-radius:16px;margin:14px 16px;overflow:hidden}
+.cartao-topo{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.cartao img.foto{width:100%;height:230px;object-fit:cover;display:block}
+.cartao-acoes{display:flex;gap:16px;padding:12px 14px 6px}
+.cartao-legenda{padding:0 14px 14px;font-size:13.5px;line-height:1.5;color:var(--tinta)}
+.mini{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.nome{font-size:14px;font-weight:600;display:flex;align-items:center;gap:5px}
+.sub{font-size:11.5px;color:var(--pedra)}
+
+/* ---------- comum ---------- */
+.busca{display:flex;align-items:center;gap:10px;background:var(--cal);border-radius:14px;padding:12px 14px;margin:0 16px}
+.busca input{flex:1;border:none;background:none;font-family:var(--sans);font-size:14px;color:var(--grafite);min-width:0;outline:none}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px}
+.chip{font-size:12.5px;font-weight:500;color:var(--tinta);background:var(--cal);border-radius:20px;padding:9px 14px;white-space:nowrap;min-height:38px}
+.chip.on{background:var(--grafite);color:#fff;font-weight:600}
+.secao{padding:4px 16px 0}
+.secao h2{font-family:var(--serif);font-size:24px;font-weight:400;margin:18px 0 4px;line-height:1.1}
+.secao p.lede{font-size:13.5px;color:var(--pedra);margin:0 0 14px;line-height:1.45}
+.etq{font-size:9.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 8px;border-radius:20px}
+.etq-ambar{background:var(--ambar-fraco);color:var(--ambar-texto)}
+.etq-selo{background:var(--selo-fraco);color:#14563F}
+.etq-cinza{background:var(--cal);color:var(--pedra)}
+
+/* loja */
+.kit{border:1px solid var(--regua);border-radius:16px;overflow:hidden;margin-bottom:14px}
+.kit img{width:100%;height:150px;object-fit:cover;display:block}
+.kit .corpo{padding:14px;display:flex;align-items:flex-end;gap:12px}
+.kit .corpo div{flex:1}
+.kit h3{margin:0 0 4px;font-size:16px;font-weight:600}
+.kit .preco{font-size:17px;font-weight:700}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 16px 20px}
+.prod{border:1px solid var(--regua);border-radius:14px;overflow:hidden}
+.prod img{width:100%;height:120px;object-fit:cover;display:block}
+.prod .corpo{padding:10px}
+.prod h4{margin:0 0 6px;font-size:12.5px;font-weight:500;line-height:1.35;height:34px;overflow:hidden}
+.prod .preco{font-size:14.5px;font-weight:700}
+.estrelas{font-size:11px;color:var(--pedra);margin-top:3px}
+
+/* explorar */
+.mapa{margin:6px 16px 0;border:1px solid var(--regua);border-radius:14px;overflow:hidden;position:relative;background:var(--cal)}
+.mapa svg{display:block;width:100%;height:auto}
+.mapa .flag{position:absolute;left:12px;bottom:10px;background:#fff;border:1px solid var(--regua);border-radius:20px;padding:6px 12px;font-size:11.5px;font-weight:600}
+.pro{display:flex;gap:12px;border:1px solid var(--regua);border-radius:16px;padding:14px;margin:0 16px 12px}
+.pro img{width:52px;height:52px;border-radius:12px;object-fit:cover;flex-shrink:0}
+.pro .preco{font-size:15px;font-weight:700;margin-top:6px}
+.pro .preco small{font-weight:400;font-size:12px;color:var(--pedra);margin-left:5px}
+.faixa{margin-top:8px;font-size:11.5px;background:var(--cal);border-radius:8px;padding:7px 9px;color:var(--tinta);line-height:1.35}
+
+/* perfil */
+.capa{height:104px;background:linear-gradient(120deg,#22322B,#1C1C1A)}
+.perfil-topo{padding:0 16px;margin-top:-34px}
+.perfil-topo img{width:76px;height:76px;border-radius:50%;border:3px solid var(--papel);object-fit:cover}
+.numeros{display:flex;gap:10px;margin:16px 0 4px}
+.num-bloco{flex:1;border:1px solid var(--regua);border-radius:12px;padding:11px;text-align:center}
+.num-bloco b{display:block;font-family:var(--serif);font-size:24px;font-weight:400;line-height:1}
+.num-bloco span{font-size:10.5px;color:var(--pedra)}
+.perfil-abas{display:flex;border-bottom:1px solid var(--regua);margin:16px 0 0}
+.perfil-aba{flex:1;padding:12px 0;font-size:13px;font-weight:500;color:var(--pedra);text-align:center;min-height:44px}
+.perfil-aba.on{color:var(--grafite);font-weight:600;box-shadow:inset 0 -2px 0 var(--grafite)}
+.grade3{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:3px}
+.grade3 img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.semana{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid #F3F3EF}
+.marco{width:26px;height:26px;border-radius:50%;background:var(--cal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--pedra);flex-shrink:0}
+.marco.feita{background:var(--ambar);color:var(--grafite)}
+.marco.atual{background:#fff;border:2.5px solid var(--ambar);color:var(--grafite)}
+.semana .txt{flex:1;font-size:13.5px}
+.semana .txt small{display:block;font-size:11.5px;color:var(--pedra);margin-top:2px}
+
+/* mensagens */
+.conversa{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid #F3F3EF}
+.conversa .corpo{flex:1;min-width:0}
+.conversa .previa{font-size:12.5px;color:var(--pedra);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conversa .hora{font-size:11px;color:var(--pedra);align-self:flex-start;margin-top:3px}
+.naolida{width:9px;height:9px;border-radius:50%;background:var(--ambar);flex-shrink:0}
+
+/* folha modal */
+.sombra{position:absolute;inset:0;background:rgba(20,20,18,.42);z-index:20;display:none}
+.sombra.on{display:block}
+.folha{
+  position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--papel);
+  border-radius:22px 22px 0 0;padding:10px 0 22px;transform:translateY(100%);transition:transform .26s ease;
+  max-height:88%;overflow-y:auto;
+}
+.folha.on{transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.folha{transition:none}}
+.puxador{width:38px;height:4px;border-radius:3px;background:var(--regua);margin:6px auto 14px}
+.opcao{display:flex;align-items:center;gap:14px;padding:15px 20px;width:100%;text-align:left;min-height:56px}
+.opcao:not(:last-child){border-bottom:1px solid #F3F3EF}
+.opcao .ic{width:40px;height:40px;border-radius:11px;background:var(--cal);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.opcao .t{font-size:15px;font-weight:600}
+.opcao .d{font-size:12px;color:var(--pedra);margin-top:2px}
+.form{padding:4px 20px 0}
+.form h3{font-family:var(--serif);font-size:23px;font-weight:400;margin:0 0 4px}
+.rotulo{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pedra);margin:18px 0 9px}
+.opcoes-aud{display:flex;flex-direction:column;gap:8px}
+.aud{display:flex;align-items:center;gap:11px;border:1px solid var(--regua);border-radius:13px;padding:13px;width:100%;text-align:left;min-height:52px}
+.aud.on{border:2px solid var(--grafite);padding:12px}
+.radio{width:19px;height:19px;border-radius:50%;border:1.5px solid #D5D5CE;flex-shrink:0}
+.aud.on .radio{background:var(--ambar);border-color:var(--ambar);display:flex;align-items:center;justify-content:center}
+.aud .t{font-size:14px;font-weight:600}
+.aud .d{font-size:11.5px;color:var(--pedra);margin-top:1px}
+.btn-cheio{
+  width:100%;background:var(--grafite);color:#fff;font-size:15px;font-weight:600;border-radius:26px;
+  min-height:52px;margin-top:20px;
+}
+.aviso-rodape{font-size:11px;color:var(--pedra);text-align:center;padding:14px 20px 0;line-height:1.4}
+.toast{
+  position:absolute;left:50%;transform:translateX(-50%) translateY(20px);bottom:86px;z-index:30;
+  background:var(--grafite);color:#fff;font-size:13px;font-weight:500;padding:12px 18px;border-radius:24px;
+  opacity:0;transition:all .22s ease;pointer-events:none;max-width:86%;text-align:center;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+::-webkit-scrollbar{display:none}
+:focus-visible{outline:2px solid var(--ambar);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="stage">
+
+    <!-- ============ FEED (PARA VOCÊ) ============ -->
+    <section class="screen on" id="tela-feed">
+      <div class="topo">
+        <button class="icone-topo" aria-label="Ao vivo">
+          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8 7 5 3M16 7l3-4"/></svg>
+        </button>
+        <div class="abas">
+          <button class="aba" data-aba="seguindo">Seguindo</button>
+          <button class="aba" data-aba="perto">Perto de mim</button>
+          <button class="aba" data-aba="loja">Loja<span class="ponto"></span></button>
+          <button class="aba on" data-aba="foryou">Para você</button>
+        </div>
+        <button class="icone-topo" aria-label="Buscar" onclick="irPara('explorar')">
+          <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+        </button>
+      </div>
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <!-- ============ SEGUINDO ============ -->
+    <section class="screen" id="tela-seguindo">
+      <div class="cabeca">
+        <svg viewBox="0 0 120 120" width="26" height="26" aria-hidden="true"><path d="M 60 12 A 48 48 0 1 1 26.1 26.1" fill="none" stroke="#1C1C1A" stroke-width="13" stroke-linecap="round"/><circle cx="60" cy="12" r="10" fill="#E8A33D"/></svg>
+        <h1>Seguindo</h1>
+        <button aria-label="Voltar para você" onclick="trocarAba('foryou')" style="font-size:13px;font-weight:600;color:var(--pedra);min-height:44px">Para você</button>
+      </div>
+      <div class="rolagem">
+        <div class="stories" id="stories"></div>
+        <div id="cartoes-seguindo"></div>
+        <p class="aviso-rodape">Você vê aqui só quem você segue e a sua turma. Protótipo — Processo Seletivo 2026.2, Consulting Club UFRJ.</p>
+      </div>
+    </section>
+
+    <!-- ============ LOJA ============ -->
+    <section class="screen" id="tela-loja">
+      <div class="cabeca"><h1>Loja</h1><span class="etq etq-cinza">comissão</span></div>
+      <div class="rolagem">
+        <div class="busca" style="margin-top:12px">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#6E6E68" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+          <input type="text" value="" placeholder="O que você precisa para começar?" aria-label="Buscar na loja">
+        </div>
+        <div class="chips">
+          <button class="chip on">Kits</button><button class="chip">Equipamento</button>
+          <button class="chip">Suplemento</button><button class="chip">Cursos</button><button class="chip">Consultorias</button>
+        </div>
+        <div class="secao">
+          <h2>Kits por necessidade</h2>
+          <p class="lede">Montados por profissional verificado. Sem vitrine infinita.</p>
+          <div id="kits"></div>
+        </div>
+        <div class="secao"><h2>Mais vendidos</h2><p class="lede">Todo item com parceria comercial é marcado.</p></div>
+        <div class="grade" id="produtos"></div>
+      </div>
+    </section>
+
+    <!-- ============ EXPLORAR ============ -->
+    <section class="screen" id="tela-explorar">
+      <div class="cabeca"><h1>Perto de mim</h1></div>
+      <div class="rolagem">
+        <div class="busca" style="margin-top:6px">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="#6E6E68" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+          <input type="text" value="quero começar e nunca treinei" aria-label="Buscar profissionais">
+        </div>
+        <div class="chips">
+          <button class="chip on">Até 3 km</button><button class="chip">Até R$ 250</button>
+          <button class="chip">Atende iniciante</button><button class="chip">Online</button>
+        </div>
+        <div class="mapa">
+          <svg viewBox="0 0 358 168" role="img" aria-label="Mapa do bairro com profissionais verificados por perto">
+            <rect width="358" height="168" fill="#F4F4F1"/>
+            <path d="M0 46H358M0 108H358M78 0V168M196 0V168M292 0V168" stroke="#E3E3DE" stroke-width="2"/>
+            <path d="M0 136C96 124 176 148 358 132" stroke="#DCE5E1" stroke-width="11" fill="none"/>
+            <path d="M78 46 196 108" stroke="#E9E9E4" stroke-width="6" fill="none"/>
+            <circle cx="132" cy="74" r="12" fill="#1C1C1A"/><circle cx="132" cy="74" r="4.2" fill="#fff"/>
+            <circle cx="244" cy="58" r="9.5" fill="#1F7A5A"/><circle cx="244" cy="58" r="3.6" fill="#fff"/>
+            <circle cx="206" cy="124" r="9.5" fill="#1F7A5A"/><circle cx="206" cy="124" r="3.6" fill="#fff"/>
+            <circle cx="62" cy="128" r="9.5" fill="#1F7A5A"/><circle cx="62" cy="128" r="3.6" fill="#fff"/>
+            <circle cx="304" cy="96" r="9.5" fill="#1F7A5A"/><circle cx="304" cy="96" r="3.6" fill="#fff"/>
+          </svg>
+          <div class="flag">Tijuca · 14 verificados</div>
+        </div>
+        <div class="secao"><h2>Profissionais verificados</h2><p class="lede">Preço na mesa antes da conversa.</p></div>
+        <div id="profissionais"></div>
+        <p class="aviso-rodape">Perfis ilustrativos. Protótipo acadêmico, sem serviço real.</p>
+      </div>
+    </section>
+
+    <!-- ============ MENSAGENS ============ -->
+    <section class="screen" id="tela-mensagens">
+      <div class="cabeca"><h1>Mensagens</h1></div>
+      <div class="rolagem"><div id="conversas"></div></div>
+    </section>
+
+    <!-- ============ PERFIL ============ -->
+    <section class="screen" id="tela-perfil">
+      <div class="rolagem">
+        <div class="capa"></div>
+        <div class="perfil-topo">
+          <img src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=200&q=70" alt="">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-top:10px">
+            <div style="flex:1">
+              <div style="font-size:19px;font-weight:700">Marina R.</div>
+              <div class="sub">@marina.r · turma da manhã · Tijuca</div>
+            </div>
+            <span class="etq etq-ambar" style="margin-top:4px">Semana 3</span>
+          </div>
+          <p style="font-size:13.5px;line-height:1.5;color:var(--tinta);margin:10px 0 0">Recomeçando pela terceira vez — e desta vez com quem entende. Sem pressa.</p>
+          <div class="numeros">
+            <div class="num-bloco"><b>3</b><span>semanas</span></div>
+            <div class="num-bloco"><b>9</b><span>treinos</span></div>
+            <div class="num-bloco"><b>12</b><span>na turma</span></div>
+          </div>
+        </div>
+        <div class="perfil-abas">
+          <button class="perfil-aba on" data-pa="posts">Meus posts</button>
+          <button class="perfil-aba" data-pa="salvos">Salvos</button>
+          <button class="perfil-aba" data-pa="progresso">Progresso</button>
+        </div>
+        <div id="pa-posts"><div class="grade3" id="grade-posts"></div></div>
+        <div id="pa-salvos" style="display:none"><div class="grade3" id="grade-salvos"></div></div>
+        <div id="pa-progresso" style="display:none">
+          <div class="secao"><h2>Trilha de 12 semanas</h2><p class="lede">Checkpoints nas semanas 2, 6 e 12 — onde a maioria desiste.</p></div>
+          <div id="semanas"></div>
+          <p class="aviso-rodape">Concluir as 12 semanas é a única métrica que a Gênesis persegue.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ BARRA INFERIOR ============ -->
+  <nav class="tabbar">
+    <button class="on" data-tela="feed">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3.5 21 11v9h-7v-6h-4v6H3z"/></svg>
+      <span>Início</span>
+    </button>
+    <button data-tela="explorar">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+      <span>Explorar</span>
+    </button>
+    <button onclick="abrirFolha()" aria-label="Publicar ou registrar treino">
+      <span class="mais"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+    </button>
+    <button data-tela="mensagens">
+      <span class="badge">3</span>
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a3 3 0 0 1-3 3H8l-5 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/></svg>
+      <span>Mensagens</span>
+    </button>
+    <button data-tela="perfil">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+      <span>Perfil</span>
+    </button>
+  </nav>
+
+  <div class="sombra" id="sombra" onclick="fecharFolha()"></div>
+  <div class="folha" id="folha"><div class="puxador"></div><div id="folha-conteudo"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ============ DADOS MOCK ============ */
+const U = (id,w) => `https://images.unsplash.com/${id}?w=${w||800}&q=72&auto=format&fit=crop`;
+
+const posts = [
+  { autor:"ricardo.treina", nome:"Ricardo A.", verificado:false, foto:U("photo-1571019613454-1cb2f99b2d8b",300),
+    img:U("photo-1571019613454-1cb2f99b2d8b",900), desc:"Três exercícios que eu faria se voltasse hoje depois de 2 anos parado. Sem aparelho difícil, sem vergonha.",
+    curtidas:"1.204", comentarios:"86", salvos:"31", compart:"12",
+    musica:"Treino de força · 42 salvos", capa:U("photo-1511671782779-c97d3d27a1d4",120),
+    ancora:{ tipo:"produto", nome:"Kit halteres ajustáveis", acao:"ver", img:U("photo-1517836357463-d25dfeac3438",120) } },
+
+  { autor:"beatriz.corre", nome:"Beatriz L.", verificado:false, foto:U("photo-1461896836934-ffe607ba8211",300),
+    img:U("photo-1461896836934-ffe607ba8211",900), desc:"Primeira corrida de 5 km da vida. Comecei andando 2 min, correndo 1. Hoje foi tudo correndo.",
+    curtidas:"3.410", comentarios:"212", salvos:"188", compart:"64",
+    musica:"Ritmo leve · 1.2 mil salvos", capa:U("photo-1470229722913-7ea0d7ea3d0d",120),
+    ancora:{ tipo:"servico", nome:"Grupo de corrida · Tijuca", acao:"ver", img:U("photo-1552674605-db6ffd4facb5",120) } },
+
+  { autor:"centro.luta", nome:"Centro de Luta RJ", verificado:false, foto:U("photo-1546483875-ad9014c88eba",300),
+    img:U("photo-1546483875-ad9014c88eba",900), desc:"Aula para quem nunca bateu num saco antes. Turma de iniciante é separada — ninguém vai te jogar no tatame no primeiro dia.",
+    curtidas:"892", comentarios:"44", salvos:"77", compart:"19",
+    musica:"Aquecimento · 310 salvos", capa:U("photo-1517836357463-d25dfeac3438",120),
+    ancora:{ tipo:"servico", nome:"Aula experimental gratuita", acao:"agendar", img:U("photo-1546483875-ad9014c88eba",120) } },
+
+  { autor:"diego.nutri", nome:"Diego M.", verificado:true, foto:U("photo-1490645935967-10de6ba17061",300),
+    img:U("photo-1490645935967-10de6ba17061",900), desc:"Café da manhã de 6 minutos para quem treina cedo e não consegue comer antes. Sem suplemento nenhum.",
+    curtidas:"5.877", comentarios:"301", salvos:"2.140", compart:"420",
+    musica:"Cozinha rápida · 890 salvos", capa:U("photo-1490645935967-10de6ba17061",120),
+    ancora:{ tipo:"servico", nome:"Avaliação com nutricionista · R$ 220", acao:"agendar", img:U("photo-1490645935967-10de6ba17061",120) } },
+
+  { autor:"marina.r", nome:"Marina R.", verificado:false, foto:U("photo-1552674605-db6ffd4facb5",300),
+    img:U("photo-1534438327276-14e5300c3a48",900), desc:"12 semanas. Eu, que nunca passei de três. Não tenho foto de antes e depois — tenho 36 treinos registrados.",
+    curtidas:"12.3 mil", comentarios:"1.108", salvos:"940", compart:"602",
+    musica:"Playlist da turma da manhã · 220 salvos", capa:U("photo-1534438327276-14e5300c3a48",120),
+    marco:true, progresso:100, ancora:null },
+
+  { autor:"paula.personal", nome:"Paula A.", verificado:true, foto:U("photo-1544367567-0f2fcb009e0b",300),
+    img:U("photo-1544367567-0f2fcb009e0b",900), desc:"Mobilidade de 8 minutos para fazer antes de dormir. Serve para quem passa o dia sentado — que é quase todo mundo.",
+    curtidas:"4.021", comentarios:"157", salvos:"1.380", compart:"233",
+    musica:"Respiração e alongamento · 640 salvos", capa:U("photo-1544367567-0f2fcb009e0b",120),
+    ancora:{ tipo:"servico", nome:"Consultoria online · R$ 320/mês", acao:"agendar", img:U("photo-1544367567-0f2fcb009e0b",120) } }
+];
+
+const stories = [
+  { nome:"Sua turma", img:U("photo-1534438327276-14e5300c3a48",200), novo:true },
+  { nome:"ricardo.treina", img:U("photo-1571019613454-1cb2f99b2d8b",200), novo:true },
+  { nome:"beatriz.corre", img:U("photo-1461896836934-ffe607ba8211",200), novo:true },
+  { nome:"diego.nutri", img:U("photo-1490645935967-10de6ba17061",200), novo:false },
+  { nome:"paula.personal", img:U("photo-1544367567-0f2fcb009e0b",200), novo:false },
+  { nome:"centro.luta", img:U("photo-1546483875-ad9014c88eba",200), novo:false }
+];
+
+const profissionais = [
+  { nome:"Diego M.", cred:"Nutricionista · CRN-4 · 1,2 km", preco:"R$ 220", obs:"primeira consulta",
+    faixa:"78% dos clientes chegaram à semana 12", img:U("photo-1490645935967-10de6ba17061",200) },
+  { nome:"Paula A.", cred:"Personal · CREF 6 · 800 m", preco:"R$ 90", obs:"por sessão",
+    faixa:"Atende iniciante · pacotes a partir de R$ 320", img:U("photo-1544367567-0f2fcb009e0b",200) },
+  { nome:"Rafael S.", cred:"Psicólogo do esporte · CRP · online", preco:"R$ 160", obs:"por sessão",
+    faixa:"Trabalha com quem já desistiu antes", img:U("photo-1552674605-db6ffd4facb5",200) }
+];
+
+const kits = [
+  { nome:"Kit para começar em casa", preco:"R$ 289", desc:"Halter ajustável, elástico e colchonete", img:U("photo-1517836357463-d25dfeac3438",700), parceria:true },
+  { nome:"Kit primeira corrida", preco:"R$ 412", desc:"Tênis de entrada, meia técnica e garrafa", img:U("photo-1461896836934-ffe607ba8211",700), parceria:true }
+];
+
+const produtos = [
+  { nome:"Elástico de resistência (3 níveis)", preco:"R$ 79", nota:"4,7 · 1.204", img:U("photo-1517836357463-d25dfeac3438",400), parceria:true },
+  { nome:"Curso: como montar seu treino", preco:"R$ 119", nota:"4,9 · 318", img:U("photo-1571019613454-1cb2f99b2d8b",400), parceria:false },
+  { nome:"Colchonete antiderrapante", preco:"R$ 134", nota:"4,6 · 842", img:U("photo-1544367567-0f2fcb009e0b",400), parceria:true },
+  { nome:"Consultoria de 12 semanas", preco:"R$ 320", nota:"5,0 · 96", img:U("photo-1490645935967-10de6ba17061",400), parceria:false }
+];
+
+const conversas = [
+  { nome:"Diego M. (nutricionista)", previa:"Perfeito. Levo a avaliação na quinta, pode ser?", hora:"18:42", naolida:true, img:U("photo-1490645935967-10de6ba17061",200), verificado:true },
+  { nome:"Turma da manhã", previa:"Beatriz: quem vai amanhã às 6h30?", hora:"17:10", naolida:true, img:U("photo-1534438327276-14e5300c3a48",200), verificado:false },
+  { nome:"Paula A. (personal)", previa:"Mandei o ajuste da semana 4 aí 👀", hora:"ontem", naolida:true, img:U("photo-1544367567-0f2fcb009e0b",200), verificado:true },
+  { nome:"Gênesis", previa:"Seu checkpoint da semana 2 é quinta-feira.", hora:"seg", naolida:false, img:"", verificado:false, sistema:true }
+];
+
+const semanas = [
+  { n:1, t:"Adaptação", d:"3 treinos de 25 min", estado:"feita" },
+  { n:2, t:"Checkpoint", d:"Primeira conversa com o profissional", estado:"feita", check:true },
+  { n:3, t:"Consistência", d:"3 treinos · você está aqui", estado:"atual" },
+  { n:4, t:"Carga", d:"Aumento leve de intensidade", estado:"futura" },
+  { n:5, t:"Rotina", d:"3 treinos + mobilidade", estado:"futura" },
+  { n:6, t:"Checkpoint", d:"Reavaliação e ajuste do plano", estado:"futura", check:true },
+  { n:7, t:"Manutenção", d:"3 treinos", estado:"futura" },
+  { n:8, t:"Progressão", d:"Novo estímulo", estado:"futura" },
+  { n:9, t:"Autonomia", d:"Você monta um treino", estado:"futura" },
+  { n:10, t:"Volume", d:"4 treinos", estado:"futura" },
+  { n:11, t:"Preparação", d:"Fechamento do ciclo", estado:"futura" },
+  { n:12, t:"Checkpoint final", d:"Relatório das 12 semanas", estado:"futura", check:true }
+];
+
+const svgCoracao = (p,f) => `<svg viewBox="0 0 24 24" width="${p}" height="${p}" fill="${f||'#fff'}" stroke="${f||'#fff'}" stroke-width="1.2"><path d="M12 20.5s-7.5-4.7-7.5-9.7A4.3 4.3 0 0 1 12 8.2a4.3 4.3 0 0 1 7.5 2.6c0 5-7.5 9.7-7.5 9.7z"/></svg>`;
+const svgSelo = p => `<svg viewBox="0 0 120 120" width="${p}" height="${p}" role="img" aria-label="Verificado"><circle cx="60" cy="60" r="52" fill="#1F7A5A"/><path d="M40 61 54 75 81 46" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/* ============ FEED ============ */
+document.getElementById('feed').innerHTML = posts.map((p,i) => `
+  <article class="post" data-i="${i}">
+    <img class="bg" src="${p.img}" alt="">
+    <div class="veu"></div>
+    <div class="play"><svg viewBox="0 0 24 24" width="26" height="26" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>
+    <div class="coracao-voo">${svgCoracao(96,'#fff')}</div>
+
+    <div class="rail">
+      <div class="autor">
+        <img src="${p.foto}" alt="">
+        <span class="seguir"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#1C1C1A" stroke-width="3" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg></span>
+      </div>
+      <button class="acao curtir" aria-label="Curtir">${svgCoracao(28)}<span class="num">${p.curtidas}</span></button>
+      <button class="acao" aria-label="Comentários"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a3 3 0 0 1-3 3H8l-5 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/></svg><span class="num">${p.comentarios}</span></button>
+      <button class="acao" aria-label="Salvar"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-5-6 5z"/></svg><span class="num">${p.salvos}</span></button>
+      <button class="acao" aria-label="Compartilhar"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M12 16V3M7 8l5-5 5 5"/></svg><span class="num">${p.compart}</span></button>
+      <div class="disco"><img src="${p.capa}" alt=""></div>
+    </div>
+
+    <div class="legenda">
+      ${p.verificado ? `<span class="selo-post">${svgSelo(13)} Profissional verificado</span>` : ``}
+      ${p.marco ? `<span class="selo-post" style="background:rgba(232,163,61,.96);color:#1C1C1A">12 semanas concluídas</span>` : ``}
+      ${p.progresso ? `<div class="progresso-post"><i style="width:${p.progresso}%"></i></div>` : ``}
+      ${p.ancora ? `
+        <div class="ancora">
+          <img src="${p.ancora.img}" alt="">
+          <span class="nome">${p.ancora.nome}</span>
+          <button onclick="irPara('${p.ancora.tipo === 'produto' ? 'loja' : 'explorar'}')">${p.ancora.acao}</button>
+        </div>` : ``}
+      <div class="perfil-linha">@${p.autor} ${p.verificado ? svgSelo(15) : ''}</div>
+      <p class="desc">${p.desc.slice(0,96)}<b>… mais</b></p>
+      <div class="musica">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+        <span>${p.musica}</span>
+      </div>
+    </div>
+  </article>`).join('');
+
+/* curtir e toque duplo */
+let ultimoToque = 0;
+document.getElementById('feed').addEventListener('click', e => {
+  const btn = e.target.closest('.curtir');
+  if (btn) { curtir(btn.closest('.post')); return; }
+  const post = e.target.closest('.post');
+  if (!post || e.target.closest('.rail') || e.target.closest('.ancora')) return;
+  const agora = Date.now();
+  if (agora - ultimoToque < 320) curtir(post);
+  ultimoToque = agora;
+});
+function curtir(post){
+  const btn = post.querySelector('.curtir');
+  const marcado = btn.dataset.on === '1';
+  btn.dataset.on = marcado ? '0' : '1';
+  btn.querySelector('svg').setAttribute('fill', marcado ? '#fff' : '#E8534A');
+  btn.querySelector('svg').setAttribute('stroke', marcado ? '#fff' : '#E8534A');
+  if (!marcado) {
+    const c = post.querySelector('.coracao-voo');
+    c.querySelector('svg').setAttribute('fill', '#fff');
+    c.classList.remove('bate'); void c.offsetWidth; c.classList.add('bate');
+  }
+}
+
+/* ============ SEGUINDO ============ */
+document.getElementById('stories').innerHTML = stories.map(s => `
+  <button class="story">
+    <span class="anel ${s.novo ? 'novo' : ''}"><img src="${s.img}" alt=""></span>
+    <span>${s.nome}</span>
+  </button>`).join('');
+
+document.getElementById('cartoes-seguindo').innerHTML = posts.slice(0,3).map(p => `
+  <article class="cartao">
+    <div class="cartao-topo">
+      <img class="mini" src="${p.foto}" alt="">
+      <div style="flex:1">
+        <div class="nome">${p.nome} ${p.verificado ? svgSelo(14) : ''}</div>
+        <div class="sub">@${p.autor} · há 3 h</div>
+      </div>
+      <button aria-label="Mais opções"><svg viewBox="0 0 24 24" width="18" height="18" fill="#6E6E68"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button>
+    </div>
+    <img class="foto" src="${p.img}" alt="">
+    <div class="cartao-acoes">
+      <button aria-label="Curtir">${svgCoracao(23,'none').replace('stroke="none"','stroke="#1C1C1A"')}</button>
+      <button aria-label="Comentar"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a3 3 0 0 1-3 3H8l-5 3V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z"/></svg></button>
+      <button aria-label="Salvar" style="margin-left:auto"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-5-6 5z"/></svg></button>
+    </div>
+    <p class="cartao-legenda"><strong>${p.nome}</strong> ${p.desc}</p>
+  </article>`).join('');
+
+/* ============ LOJA ============ */
+document.getElementById('kits').innerHTML = kits.map(k => `
+  <article class="kit">
+    <img src="${k.img}" alt="">
+    <div class="corpo">
+      <div>
+        <h3>${k.nome}</h3>
+        <div class="sub">${k.desc}</div>
+        <div class="preco" style="margin-top:6px">${k.preco}</div>
+      </div>
+      ${k.parceria ? `<span class="etq etq-cinza">parceria</span>` : ``}
+    </div>
+  </article>`).join('');
+
+document.getElementById('produtos').innerHTML = produtos.map(p => `
+  <article class="prod">
+    <img src="${p.img}" alt="">
+    <div class="corpo">
+      <h4>${p.nome}</h4>
+      <div class="preco">${p.preco}</div>
+      <div class="estrelas">★ ${p.nota}</div>
+      ${p.parceria ? `<span class="etq etq-cinza" style="margin-top:7px;display:inline-block">parceria</span>` : ``}
+    </div>
+  </article>`).join('');
+
+/* ============ EXPLORAR ============ */
+document.getElementById('profissionais').innerHTML = profissionais.map(p => `
+  <article class="pro">
+    <img src="${p.img}" alt="">
+    <div style="flex:1;min-width:0">
+      <div class="nome">${p.nome} ${svgSelo(14)}</div>
+      <div class="sub" style="margin-top:2px">${p.cred}</div>
+      <div class="preco">${p.preco} <small>${p.obs}</small></div>
+      <div class="faixa">${p.faixa}</div>
+    </div>
+  </article>`).join('');
+
+/* ============ MENSAGENS ============ */
+document.getElementById('conversas').innerHTML = conversas.map(c => `
+  <article class="conversa">
+    ${c.sistema
+      ? `<span class="mini" style="background:var(--cal);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 120 120" width="20" height="20"><path d="M 60 12 A 48 48 0 1 1 26.1 26.1" fill="none" stroke="#1C1C1A" stroke-width="14" stroke-linecap="round"/><circle cx="60" cy="12" r="11" fill="#E8A33D"/></svg></span>`
+      : `<img class="mini" src="${c.img}" alt="">`}
+    <div class="corpo">
+      <div class="nome">${c.nome} ${c.verificado ? svgSelo(13) : ''}</div>
+      <div class="previa">${c.previa}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+      <span class="hora">${c.hora}</span>
+      ${c.naolida ? `<span class="naolida"></span>` : ``}
+    </div>
+  </article>`).join('');
+
+/* ============ PERFIL ============ */
+const gradeImgs = [
+  U("photo-1534438327276-14e5300c3a48",300), U("photo-1571019613454-1cb2f99b2d8b",300), U("photo-1461896836934-ffe607ba8211",300),
+  U("photo-1544367567-0f2fcb009e0b",300), U("photo-1490645935967-10de6ba17061",300), U("photo-1546483875-ad9014c88eba",300)
+];
+document.getElementById('grade-posts').innerHTML = gradeImgs.map(i => `<img src="${i}" alt="">`).join('');
+document.getElementById('grade-salvos').innerHTML = gradeImgs.slice().reverse().slice(0,3).map(i => `<img src="${i}" alt="">`).join('');
+
+document.getElementById('semanas').innerHTML = semanas.map(s => `
+  <div class="semana">
+    <span class="marco ${s.estado === 'feita' ? 'feita' : s.estado === 'atual' ? 'atual' : ''}">${s.n}</span>
+    <div class="txt">
+      <strong style="font-weight:${s.check ? 700 : 500}">Semana ${s.n} · ${s.t}</strong>
+      <small>${s.d}</small>
+    </div>
+    ${s.check ? `<span class="etq etq-ambar">checkpoint</span>` : ``}
+  </div>`).join('');
+
+document.querySelectorAll('.perfil-aba').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.perfil-aba').forEach(x => x.classList.toggle('on', x === b));
+  ['posts','salvos','progresso'].forEach(k =>
+    document.getElementById('pa-' + k).style.display = (k === b.dataset.pa) ? 'block' : 'none');
+});
+
+/* ============ NAVEGAÇÃO ============ */
+function irPara(tela){
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === 'tela-' + tela));
+  const mapaTab = { feed:'feed', seguindo:'feed', explorar:'explorar', loja:'explorar', mensagens:'mensagens', perfil:'perfil' };
+  document.querySelectorAll('.tabbar button[data-tela]').forEach(b =>
+    b.classList.toggle('on', b.dataset.tela === mapaTab[tela]));
+  fecharFolha();
+}
+document.querySelectorAll('.tabbar button[data-tela]').forEach(b => b.onclick = () => irPara(b.dataset.tela));
+
+function trocarAba(aba){
+  document.querySelectorAll('.aba').forEach(a => a.classList.toggle('on', a.dataset.aba === aba));
+  if (aba === 'seguindo') irPara('seguindo');
+  else if (aba === 'loja') irPara('loja');
+  else if (aba === 'perto') irPara('explorar');
+  else irPara('feed');
+}
+document.querySelectorAll('.aba').forEach(a => a.onclick = () => trocarAba(a.dataset.aba));
+
+/* ============ FOLHA DE PUBLICAÇÃO ============ */
+const menuPublicar = `
+  <button class="opcao" onclick="formRegistrar()">
+    <span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span>
+    <span style="flex:1"><span class="t">Registrar treino</span><span class="d">Dois toques. Vira post sozinho.</span></span>
+  </button>
+  <button class="opcao" onclick="aviso('Protótipo: publicação de mídia não implementada.')">
+    <span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m4 17 5-4 4 3 3-2 4 3"/></svg></span>
+    <span style="flex:1"><span class="t">Publicar foto ou vídeo</span><span class="d">Do jeito que você quiser contar.</span></span>
+  </button>
+  <button class="opcao" onclick="aviso('Protótipo: conquistas são geradas pela trilha.')">
+    <span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="m8.5 13.5-1.5 7 5-3 5 3-1.5-7"/></svg></span>
+    <span style="flex:1"><span class="t">Compartilhar conquista</span><span class="d">Marcos da sua trilha de 12 semanas.</span></span>
+  </button>
+  <button class="opcao" onclick="aviso('Protótipo: perguntas vão para profissionais verificados.')">
+    <span class="ic"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1C1C1A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.7.6-.7 1.1v.5"/><circle cx="12" cy="16.8" r=".9" fill="#1C1C1A"/></svg></span>
+    <span style="flex:1"><span class="t">Fazer uma pergunta</span><span class="d">Quem responde tem registro conferido.</span></span>
+  </button>`;
+
+function abrirFolha(){
+  document.getElementById('folha-conteudo').innerHTML = menuPublicar;
+  document.getElementById('folha').classList.add('on');
+  document.getElementById('sombra').classList.add('on');
+}
+function fecharFolha(){
+  document.getElementById('folha').classList.remove('on');
+  document.getElementById('sombra').classList.remove('on');
+}
+function formRegistrar(){
+  document.getElementById('folha-conteudo').innerHTML = `
+    <div class="form">
+      <h3>Registrar treino</h3>
+      <p style="font-size:13px;color:var(--pedra);margin:0">Semana 3 · terça-feira</p>
+
+      <div class="rotulo">Tipo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="chip on">Musculação</button><button class="chip">Corrida</button>
+        <button class="chip">Luta</button><button class="chip">Funcional</button><button class="chip">Mobilidade</button>
+      </div>
+
+      <div class="rotulo">Duração</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="chip">20 min</button><button class="chip on">40 min</button><button class="chip">1 h</button>
+      </div>
+
+      <div class="rotulo">Como foi</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="chip">Difícil</button><button class="chip on">Na medida</button><button class="chip">Tranquilo</button>
+      </div>
+
+      <div class="rotulo">Quem vê</div>
+      <div class="opcoes-aud">
+        <button class="aud on" onclick="escolherAud(this)">
+          <span class="radio"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#1C1C1A" stroke-width="3.4" stroke-linecap="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span>
+          <span style="flex:1"><span class="t">Minha turma</span><span class="d">12 pessoas que treinam com você</span></span>
+        </button>
+        <button class="aud" onclick="escolherAud(this)">
+          <span class="radio"></span>
+          <span style="flex:1"><span class="t">Seguidores</span><span class="d">Quem acompanha seu perfil</span></span>
+        </button>
+        <button class="aud" onclick="escolherAud(this)">
+          <span class="radio"></span>
+          <span style="flex:1"><span class="t">Público</span><span class="d">Qualquer pessoa no Para você</span></span>
+        </button>
+      </div>
+
+      <button class="btn-cheio" onclick="fecharFolha();aviso('Treino registrado. 3º da semana — e publicado só para a sua turma.')">Registrar e publicar</button>
+      <p class="aviso-rodape">Você pode mudar quem vê depois. O padrão é sempre a turma.</p>
+    </div>`;
+}
+function escolherAud(el){
+  el.parentElement.querySelectorAll('.aud').forEach(a => {
+    const ativo = a === el;
+    a.classList.toggle('on', ativo);
+    a.querySelector('.radio').innerHTML = ativo
+      ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#1C1C1A" stroke-width="3.4" stroke-linecap="round"><path d="M5 12.5 10 17.5 19 7"/></svg>` : '';
+  });
+}
+
+/* chips genéricos */
+document.addEventListener('click', e => {
+  const c = e.target.closest('.chip');
+  if (c && c.parentElement) {
+    c.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+  }
+});
+
+/* toast */
+let tTimer;
+function aviso(txt){
+  const t = document.getElementById('toast');
+  t.textContent = txt; t.classList.add('on');
+  clearTimeout(tTimer); tTimer = setTimeout(() => t.classList.remove('on'), 2600);
+}
+</script>
+</body>
+</html>

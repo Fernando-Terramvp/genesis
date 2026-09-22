@@ -46,9 +46,10 @@ export default function App() {
       <ComposeSheet aberta={folhaAberta} aoFechar={() => setFolhaAberta(false)} aoAvisar={setAviso} />
 
       <div
-        className={`pointer-events-none absolute bottom-[86px] left-1/2 z-50 max-w-[86%] -translate-x-1/2 rounded-3xl bg-grafite px-4 py-3 text-center text-[13px] font-medium text-white transition-all ${
-          aviso ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0'
+        className={`pointer-events-none absolute bottom-[86px] left-1/2 z-50 max-w-[86%] rounded-3xl bg-grafite px-4 py-3 text-center text-[13px] font-medium text-white transition-all ${
+          aviso ? 'opacity-100' : 'opacity-0'
         }`}
+        style={{ transform: `translateX(-50%) translateY(${aviso ? 0 : 20}px)` }}
       >
         {aviso}
       </div>

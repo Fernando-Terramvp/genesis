@@ -40,10 +40,10 @@ export default function ComposeSheet({ aberta, aoFechar, aoAvisar }: Props) {
         className={`absolute inset-0 z-30 bg-[rgba(20,20,18,.42)] transition-opacity ${aberta ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
+      {/* o deslocamento vai em style: classes de translate condicionais conflitam entre si */}
       <div
-        className={`absolute inset-x-0 bottom-0 z-40 max-h-[88%] overflow-y-auto rounded-t-[22px] bg-papel pb-6 pt-2.5 transition-transform duration-[260ms] ${
-          aberta ? 'translate-y-0' : 'translate-y-full'
-        }`}
+        className="absolute inset-x-0 bottom-0 z-40 max-h-[88%] overflow-y-auto rounded-t-[22px] bg-papel pb-6 pt-2.5 transition-transform duration-[260ms]"
+        style={{ transform: aberta ? 'translateY(0)' : 'translateY(100%)' }}
       >
         <div className="mx-auto mb-3.5 mt-1.5 h-1 w-[38px] rounded-sm bg-regua" />
 

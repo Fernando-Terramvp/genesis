@@ -3,8 +3,8 @@ import type { AbaFeed, Tela } from './types'
 import PhoneFrame from './components/PhoneFrame'
 import BottomNav from './components/BottomNav'
 import ComposeSheet from './components/ComposeSheet'
-import FeedScreen from './screens/FeedScreen'
-import SeguindoScreen from './screens/SeguindoScreen'
+import TimelineScreen from './screens/TimelineScreen'
+import ImmersiveScreen from './screens/ImmersiveScreen'
 import LojaScreen from './screens/LojaScreen'
 import ExplorarScreen from './screens/ExplorarScreen'
 import PerfilScreen from './screens/PerfilScreen'
@@ -13,6 +13,7 @@ import MensagensScreen from './screens/MensagensScreen'
 export default function App() {
   const [tela, setTela] = useState<Tela>('feed')
   const [folhaAberta, setFolhaAberta] = useState(false)
+  const [videoAberto, setVideoAberto] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
 
   useEffect(() => {
@@ -21,24 +22,35 @@ export default function App() {
     return () => clearTimeout(t)
   }, [aviso])
 
-  /** As abas do topo do feed levam às telas correspondentes. */
+  /** As abas do topo da timeline levam às telas correspondentes. */
   const trocarAba = (a: AbaFeed) =>
     setTela(a === 'seguindo' ? 'seguindo' : a === 'loja' ? 'loja' : a === 'perto' ? 'explorar' : 'feed')
+
+  const abrirAncora = (tipo: 'produto' | 'servico') => {
+    setVideoAberto(null)
+    setTela(tipo === 'produto' ? 'loja' : 'explorar')
+  }
 
   return (
     <PhoneFrame>
       <div className="relative flex-1 overflow-hidden">
-        {tela === 'feed' && (
-          <FeedScreen
+        {(tela === 'feed' || tela === 'seguindo') && (
+          <TimelineScreen
+            aba={tela === 'seguindo' ? 'seguindo' : 'foryou'}
             aoTrocarAba={trocarAba}
-            aoAbrirAncora={(tipo) => setTela(tipo === 'produto' ? 'loja' : 'explorar')}
+            aoAbrirVideo={setVideoAberto}
+            aoAbrirAncora={abrirAncora}
+            aoPublicar={() => setFolhaAberta(true)}
           />
         )}
-        {tela === 'seguindo' && <SeguindoScreen aoVoltar={() => setTela('feed')} />}
         {tela === 'loja' && <LojaScreen />}
         {tela === 'explorar' && <ExplorarScreen />}
         {tela === 'mensagens' && <MensagensScreen />}
         {tela === 'perfil' && <PerfilScreen />}
+
+        {videoAberto && (
+          <ImmersiveScreen idInicial={videoAberto} aoFechar={() => setVideoAberto(null)} aoAbrirAncora={abrirAncora} />
+        )}
       </div>
 
       <BottomNav ativa={tela} aoNavegar={setTela} aoPublicar={() => setFolhaAberta(true)} />

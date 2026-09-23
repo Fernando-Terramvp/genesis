@@ -7,6 +7,7 @@ interface Props {
   aoAbrirAncora: (tipo: 'produto' | 'servico') => void
 }
 
+/** O post em tela cheia, no formato do TikTok. Só vídeos entram aqui. */
 export default function PostItem({ post, aoAbrirAncora }: Props) {
   const [curtido, setCurtido] = useState(false)
   const [batendo, setBatendo] = useState(false)
@@ -20,7 +21,6 @@ export default function PostItem({ post, aoAbrirAncora }: Props) {
     setCurtido((c) => !c)
   }
 
-  /** Toque duplo na mídia curte, como no TikTok. */
   const aoTocar = () => {
     const agora = Date.now()
     if (agora - ultimoToque.current < 320 && !curtido) curtir()
@@ -44,7 +44,6 @@ export default function PostItem({ post, aoAbrirAncora }: Props) {
         </span>
       )}
 
-      {/* rail de ações */}
       <div className="absolute bottom-[150px] right-2.5 z-10 flex flex-col items-center gap-[18px] drop-shadow-[0_1px_3px_rgba(0,0,0,.45)]">
         <div className="relative mb-1.5">
           <img src={post.foto} alt="" className="h-[46px] w-[46px] rounded-full border-2 border-white object-cover" />
@@ -58,9 +57,9 @@ export default function PostItem({ post, aoAbrirAncora }: Props) {
           <span className="text-[11.5px] font-semibold text-white">{post.curtidas}</span>
         </button>
 
-        <button aria-label="Comentários" className="flex min-h-12 min-w-12 flex-col items-center justify-center gap-1">
+        <button aria-label="Respostas" className="flex min-h-12 min-w-12 flex-col items-center justify-center gap-1">
           <Balao tamanho={27} />
-          <span className="text-[11.5px] font-semibold text-white">{post.comentarios}</span>
+          <span className="text-[11.5px] font-semibold text-white">{post.respostas}</span>
         </button>
 
         <button aria-label="Salvar" className="flex min-h-12 min-w-12 flex-col items-center justify-center gap-1">
@@ -73,29 +72,18 @@ export default function PostItem({ post, aoAbrirAncora }: Props) {
           <span className="text-[11.5px] font-semibold text-white">{post.compartilhamentos}</span>
         </button>
 
-        <span className="disco-gira block h-10 w-10 overflow-hidden rounded-full border-[5px] border-[rgba(30,30,28,.9)]">
-          <img src={post.capa} alt="" className="h-full w-full object-cover" />
-        </span>
+        {post.capa && (
+          <span className="disco-gira block h-10 w-10 overflow-hidden rounded-full border-[5px] border-[rgba(30,30,28,.9)]">
+            <img src={post.capa} alt="" className="h-full w-full object-cover" />
+          </span>
+        )}
       </div>
 
-      {/* legenda */}
       <div className="absolute bottom-0 left-0 right-16 z-[5] flex flex-col gap-2.5 px-3.5 pb-4">
         {post.verificado && (
           <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-selo/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
             <Selo tamanho={13} /> Profissional verificado
           </span>
-        )}
-
-        {post.marco && (
-          <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-ambar/95 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-grafite">
-            12 semanas concluídas
-          </span>
-        )}
-
-        {post.progresso !== undefined && (
-          <div className="h-[5px] overflow-hidden rounded-sm bg-white/30">
-            <i className="block h-[5px] bg-ambar" style={{ width: `${post.progresso}%` }} />
-          </div>
         )}
 
         {post.ancora && (
@@ -117,14 +105,16 @@ export default function PostItem({ post, aoAbrirAncora }: Props) {
         </div>
 
         <p className="m-0 text-[13.5px] leading-snug text-white/90">
-          {post.desc.slice(0, 96)}
+          {post.texto.slice(0, 96)}
           <span className="text-white/60">… mais</span>
         </p>
 
-        <div className="flex items-center gap-2 text-xs text-white/90">
-          <Nota />
-          <span>{post.musica}</span>
-        </div>
+        {post.musica && (
+          <div className="flex items-center gap-2 text-xs text-white/90">
+            <Nota />
+            <span>{post.musica}</span>
+          </div>
+        )}
       </div>
     </article>
   )

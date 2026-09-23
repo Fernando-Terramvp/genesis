@@ -11,23 +11,38 @@ export interface Ancora {
   img: string
 }
 
+/** Texto e foto vivem na timeline; vídeo abre em tela cheia ao ser tocado. */
+export type TipoPost = 'texto' | 'foto' | 'video' | 'treino' | 'marco'
+
+export interface RegistroTreino {
+  atividade: string
+  duracao: string
+  semana: number
+  sensacao: string
+}
+
 export interface Post {
   id: string
+  tipo: TipoPost
   autor: string
   nome: string
   verificado: boolean
   foto: string
-  img: string
-  desc: string
+  tempo: string
+  texto: string
+  img?: string
   curtidas: string
-  comentarios: string
+  respostas: string
+  reposts: string
   salvos: string
   compartilhamentos: string
-  musica: string
-  capa: string
+  musica?: string
+  capa?: string
+  duracaoVideo?: string
   ancora: Ancora | null
-  marco?: boolean
+  registro?: RegistroTreino
   progresso?: number
+  respondendoA?: string
 }
 
 export interface Story {

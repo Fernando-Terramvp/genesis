@@ -114,6 +114,34 @@ export const Duvida = ({ tamanho = 20, cor = '#1C1C1A' }: IconeProps) => (
   </svg>
 )
 
+export const Repost = ({ tamanho = 19, cor = '#1C1C1A' }: IconeProps) => (
+  <svg {...base(tamanho)} stroke={cor} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 9V7a3 3 0 0 1 3-3h10l-3-3m3 3-3 3" />
+    <path d="M20 15v2a3 3 0 0 1-3 3H7l3 3m-3-3 3-3" />
+  </svg>
+)
+
+export const Pontos = ({ tamanho = 18, cor = '#9A9A92' }: IconeProps) => (
+  <svg width={tamanho} height={tamanho} viewBox="0 0 24 24" fill={cor} aria-hidden="true">
+    <circle cx="5" cy="12" r="1.7" />
+    <circle cx="12" cy="12" r="1.7" />
+    <circle cx="19" cy="12" r="1.7" />
+  </svg>
+)
+
+export const Fechar = ({ tamanho = 22, cor = '#fff' }: IconeProps) => (
+  <svg {...base(tamanho)} stroke={cor} strokeWidth={2} strokeLinecap="round" aria-hidden="true">
+    <path d="M6 6 18 18M18 6 6 18" />
+  </svg>
+)
+
+export const Relogio = ({ tamanho = 14, cor = '#6E6E68' }: IconeProps) => (
+  <svg {...base(tamanho)} stroke={cor} strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </svg>
+)
+
 export const AoVivo = ({ tamanho = 21, cor = '#fff' }: IconeProps) => (
   <svg {...base(tamanho)} stroke={cor} strokeWidth={1.8} strokeLinecap="round" aria-hidden="true">
     <rect x="3" y="7" width="18" height="13" rx="3" />
